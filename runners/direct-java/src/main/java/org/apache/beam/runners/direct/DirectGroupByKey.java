@@ -20,13 +20,13 @@ package org.apache.beam.runners.direct;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import org.apache.beam.runners.core.KeyedWorkItem;
+import org.apache.beam.runners.core.KeyedWorkItemCoder;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.IterableCoder;
 import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.transforms.GroupByKey;
 import org.apache.beam.sdk.transforms.PTransform;
-import org.apache.beam.sdk.util.KeyedWorkItem;
-import org.apache.beam.sdk.util.KeyedWorkItemCoder;
 import org.apache.beam.sdk.util.WindowingStrategy;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
@@ -45,7 +45,7 @@ class DirectGroupByKey<K, V>
   }
 
   @Override
-  public PCollection<KV<K, Iterable<V>>> apply(PCollection<KV<K, V>> input) {
+  public PCollection<KV<K, Iterable<V>>> expand(PCollection<KV<K, V>> input) {
     @SuppressWarnings("unchecked")
     KvCoder<K, V> inputCoder = (KvCoder<K, V>) input.getCoder();
 
@@ -79,7 +79,7 @@ class DirectGroupByKey<K, V>
   static final class DirectGroupByKeyOnly<K, V>
       extends PTransform<PCollection<KV<K, V>>, PCollection<KeyedWorkItem<K, V>>> {
     @Override
-    public PCollection<KeyedWorkItem<K, V>> apply(PCollection<KV<K, V>> input) {
+    public PCollection<KeyedWorkItem<K, V>> expand(PCollection<KV<K, V>> input) {
       return PCollection.createPrimitiveOutputInternal(
           input.getPipeline(), WindowingStrategy.globalDefault(), input.isBounded());
     }
@@ -126,7 +126,7 @@ class DirectGroupByKey<K, V>
     }
 
     @Override
-    public PCollection<KV<K, Iterable<V>>> apply(PCollection<KeyedWorkItem<K, V>> input) {
+    public PCollection<KV<K, Iterable<V>>> expand(PCollection<KeyedWorkItem<K, V>> input) {
       return PCollection.createPrimitiveOutputInternal(
           input.getPipeline(), outputWindowingStrategy, input.isBounded());
     }

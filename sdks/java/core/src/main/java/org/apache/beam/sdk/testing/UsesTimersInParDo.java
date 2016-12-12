@@ -15,29 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.beam.sdk.util;
+package org.apache.beam.sdk.testing;
 
-import org.apache.beam.sdk.util.TimerInternals.TimerData;
+import org.apache.beam.sdk.transforms.ParDo;
 
 /**
- * Interface that contains all the timers and elements associated with a specific work item.
- *
- * @param <K> the key type
- * @param <ElemT> the element type
+ * Category tag for validation tests which utilize timers in {@link ParDo}.
  */
-public interface KeyedWorkItem<K, ElemT> {
-  /**
-   * Returns the key.
-   */
-  K key();
-
-  /**
-   * Returns an iterable containing the timers.
-   */
-  Iterable<TimerData> timersIterable();
-
-  /**
-   * Returns an iterable containing the elements.
-   */
-  Iterable<WindowedValue<ElemT>> elementsIterable();
-}
+public interface UsesTimersInParDo {}

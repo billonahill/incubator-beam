@@ -51,7 +51,6 @@ import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.util.ReadyCheckingSideInputReader;
 import org.apache.beam.sdk.util.WindowedValue;
 import org.apache.beam.sdk.util.WindowingStrategy;
-import org.apache.beam.sdk.util.state.CopyOnAccessInMemoryStateInternals;
 import org.apache.beam.sdk.util.state.StateInternals;
 import org.apache.beam.sdk.util.state.StateNamespace;
 import org.apache.beam.sdk.util.state.StateNamespaces;
@@ -129,7 +128,7 @@ public class StatefulParDoEvaluatorFactoryTest implements Serializable {
     AppliedPTransform<
             PCollection<? extends KV<String, Iterable<Integer>>>, PCollectionTuple,
             StatefulParDo<String, Integer, Integer>>
-        producingTransform = (AppliedPTransform) produced.getProducingTransformInternal();
+        producingTransform = (AppliedPTransform) DirectGraphs.getProducer(produced);
 
     // Then there will be a digging down to the step context to get the state internals
     when(mockEvaluationContext.getExecutionContext(
@@ -239,7 +238,7 @@ public class StatefulParDoEvaluatorFactoryTest implements Serializable {
     AppliedPTransform<
             PCollection<KV<String, Iterable<Integer>>>, PCollectionTuple,
             StatefulParDo<String, Integer, Integer>>
-        producingTransform = (AppliedPTransform) produced.getProducingTransformInternal();
+        producingTransform = (AppliedPTransform) DirectGraphs.getProducer(produced);
 
     // Then there will be a digging down to the step context to get the state internals
     when(mockEvaluationContext.getExecutionContext(
