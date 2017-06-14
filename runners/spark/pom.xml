@@ -348,11 +348,17 @@
             <arguments>
               <argument>-classpath</argument>
               <classpath />
-              <argument>${mainClass}</argument>
-              <argument>--inputFile=${input}</argument>
-              <argument>--output=${output}</argument>
-              <argument>--runner=${runner}</argument>
-              <argument>--sparkMaster=${sparkMaster}</argument>
+              <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000</argument>
+              <argument>org.apache.beam.runners.spark.examples.WordCount</argument>
+              <argument>--inputFile=pom.xml</argument>
+              <argument>--output=counts</argument>
+              <argument>--runner=SparkRunner</argument>
+              <argument>--sparkMaster=local</argument>
+              <!--<argument>${mainClass}</argument>-->
+              <!--<argument>&#45;&#45;inputFile=${input}</argument>-->
+              <!--<argument>&#45;&#45;output=${output}</argument>-->
+              <!--<argument>&#45;&#45;runner=${runner}</argument>-->
+              <!--<argument>&#45;&#45;sparkMaster=${sparkMaster}</argument>-->
             </arguments>
           </configuration>
         </plugin>

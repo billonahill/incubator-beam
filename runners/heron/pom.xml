@@ -37,6 +37,7 @@
     <spark.version>1.6.3</spark.version>
     <hadoop.version>2.2.0</hadoop.version>
     <kafka.version>0.9.0.1</kafka.version>
+    <summingbird.version>0.9.1</summingbird.version>
     <dropwizard.metrics.version>3.1.2</dropwizard.metrics.version>
   </properties>
 
@@ -51,6 +52,54 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>scala-2.11</id>
+      <properties>
+        <scalaVersion>2.11.8</scalaVersion>
+        <scalaBinaryVersion>2.11</scalaBinaryVersion>
+      </properties>
+      <dependencies>
+          <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scalaVersion}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-xml_${scalaBinaryVersion}</artifactId>
+            <version>1.0.6</version>
+          </dependency>
+          <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-parser-combinators_${scalaBinaryVersion}</artifactId>
+            <version>1.0.4</version>
+          </dependency>
+          <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-swing_${scalaBinaryVersion}</artifactId>
+            <version>1.0.2</version>
+          </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>scala-2.10</id>
+      <properties>
+        <scalaVersion>2.10.6</scalaVersion>
+        <scalaBinaryVersion>2.10</scalaBinaryVersion>
+      </properties>
+      <dependencies>
+          <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scalaVersion}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-swing</artifactId>
+            <version>${scalaVersion}</version>
+          </dependency>
+      </dependencies>
     </profile>
   </profiles>
 
@@ -69,6 +118,16 @@
       <groupId>com.google.auto.service</groupId>
       <artifactId>auto-service</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>summingbird-core_2.10</artifactId>
+      <version>${summingbird.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>algebird-core_2.10</artifactId>
+      <version>0.11.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -153,6 +212,33 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.7</source>
+            <target>1.7</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>net.alchim31.maven</groupId>
+          <artifactId>scala-maven-plugin</artifactId>
+          <version>3.2.1</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+                <goal>testCompile</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <args>
+              <!-- work-around for https://issues.scala-lang.org/browse/SI-8358 -->
+              <arg>-nobootcp</arg>
+            </args>
+          </configuration>
+        </plugin>
         <!-- BEAM-931 -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -184,10 +270,15 @@
             <arguments>
               <argument>-classpath</argument>
               <classpath />
-              <argument>${mainClass}</argument>
-              <argument>--inputFile=${input}</argument>
-              <argument>--output=${output}</argument>
-              <argument>--runner=${runner}</argument>
+              <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000</argument>
+              <argument>org.apache.beam.runners.heron.examples.WordCount</argument>
+              <argument>--inputFile=pom.xml</argument>
+              <argument>--output=counts</argument>
+              <argument>--runner=HeronRunner</argument>
+              <!--<argument>${mainClass}</argument>-->
+              <!--<argument>&#45;&#45;inputFile=${input}</argument>-->
+              <!--<argument>&#45;&#45;output=${output}</argument>-->
+              <!--<argument>&#45;&#45;runner=${runner}</argument>-->
             </arguments>
           </configuration>
         </plugin>
@@ -233,7 +324,7 @@
                   </relocation>
                 </relocations>
                 <shadedArtifactAttached>true</shadedArtifactAttached>
-                <shadedClassifierName>spark-app</shadedClassifierName>
+                <shadedClassifierName>heron-app</shadedClassifierName>
                 <transformers>
                   <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                 </transformers>
@@ -255,6 +346,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
